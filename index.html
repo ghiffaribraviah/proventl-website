@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PepPI Studio | Static Proof of Concept</title>
+  <style>
+    :root {
+      --bg: #f3efe7;
+      --bg-deep: #e7dfd2;
+      --ink: #111827;
+      --muted: #5f6575;
+      --line: rgba(17, 24, 39, 0.10);
+      --surface: rgba(255, 255, 255, 0.82);
+      --surface-strong: rgba(255, 255, 255, 0.96);
+      --accent: #0b7d7d;
+      --accent-2: #0a4f5e;
+      --accent-soft: rgba(11, 125, 125, 0.12);
+      --warn: #b14f37;
+      --shadow: 0 24px 60px rgba(17, 24, 39, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(11, 125, 125, 0.20), transparent 28%),
+        radial-gradient(circle at top right, rgba(177, 79, 55, 0.13), transparent 24%),
+        linear-gradient(180deg, var(--bg), var(--bg-deep));
+      font-family: "Trebuchet MS", "Verdana", sans-serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.30;
+      background-image:
+        linear-gradient(rgba(17, 24, 39, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17, 24, 39, 0.05) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 95%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    code {
+      padding: 0.16rem 0.42rem;
+      border-radius: 0.45rem;
+      background: rgba(17, 24, 39, 0.06);
+      font-size: 0.92em;
+    }
+
+    .page {
+      position: relative;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 22px 20px 44px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.70);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      flex: 0 0 auto;
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 1.02rem;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-copy span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.55);
+      transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav a:hover {
+      color: var(--ink);
+      border-color: var(--line);
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      margin-top: 28px;
+      align-items: stretch;
+    }
+
+    .hero-copy,
+    .hero-aside,
+    .panel {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(251, 248, 243, 0.90));
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-copy {
+      position: relative;
+      overflow: hidden;
+      padding: 36px;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(11, 125, 125, 0.10);
+      color: var(--accent);
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 20px 0 14px;
+      max-width: 12ch;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.6rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p,
+    .panel p,
+    .step p,
+    .upload p,
+    .note {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .hero p {
+      max-width: 62ch;
+      font-size: 1.05rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .btn,
+    .ghost,
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font: inherit;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .btn,
+    button {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 24px rgba(11, 125, 125, 0.24);
+    }
+
+    .ghost {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.68);
+      border-color: var(--line);
+    }
+
+    .btn:hover,
+    .ghost:hover,
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-bottom: 4px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .hero-aside {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .signal-card {
+      position: relative;
+      overflow: hidden;
+      min-height: 230px;
+      padding: 22px;
+      border-radius: 24px;
+      color: #ffffff;
+      background: linear-gradient(135deg, #152033, #263351 52%, #0a4f5e);
+    }
+
+    .signal-card::after {
+      content: "";
+      position: absolute;
+      right: -18%;
+      bottom: -20%;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.24), transparent 68%);
+    }
+
+    .signal-card .title {
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      opacity: 0.85;
+    }
+
+    .signal-card ul {
+      list-style: none;
+      margin: 18px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .signal-card li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .signal-card b {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      flex: 0 0 auto;
+      font-size: 0.82rem;
+    }
+
+    .signal-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .meta-tile {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid var(--line);
+    }
+
+    .meta-tile small {
+      display: block;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+    }
+
+    .meta-tile strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.04rem;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 14px 15px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    }
+
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #8a8f9f;
+    }
+
+    .upload {
+      margin-top: 20px;
+      padding: 22px;
+      text-align: center;
+      border-radius: 24px;
+      border: 2px dashed rgba(11, 125, 125, 0.28);
+      background: linear-gradient(180deg, rgba(11, 125, 125, 0.08), rgba(255, 255, 255, 0.56));
+    }
+
+    .upload strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .note {
+      margin-top: 14px;
+      font-size: 0.92rem;
+    }
+
+    .results {
+      margin-top: 24px;
+    }
+
+    .result-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .result-card {
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .result-card small {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+    }
+
+    .result-card strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.35rem;
+    }
+
+    .result-card span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 12px;
+      margin-top: 20px;
+    }
+
+    th {
+      padding: 0 16px 6px;
+      text-align: left;
+      font-size: 0.80rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    td {
+      padding: 16px;
+      background: #ffffff;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    tbody tr td:first-child {
+      border-left: 1px solid var(--line);
+      border-top-left-radius: 18px;
+      border-bottom-left-radius: 18px;
+    }
+
+    tbody tr td:last-child {
+      border-right: 1px solid var(--line);
+      border-top-right-radius: 18px;
+      border-bottom-right-radius: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+
+    .badge.positive {
+      color: var(--accent);
+      background: rgba(11, 125, 125, 0.10);
+    }
+
+    .badge.negative {
+      color: var(--warn);
+      background: rgba(177, 79, 55, 0.10);
+    }
+
+    .pipeline {
+      margin-top: 24px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .step {
+      min-height: 160px;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .step .num {
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-weight: 800;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+      padding: 20px 4px 0;
+      border-top: 1px solid rgba(17, 24, 39, 0.08);
+      color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+
+      .hero,
+      .section-grid,
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .stats,
+      .result-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 16px;
+      }
+
+      .hero-copy,
+      .hero-aside,
+      .panel {
+        padding: 20px;
+      }
+
+      .stats,
+      .signal-meta,
+      .result-strip,
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">PP</div>
+        <div class="brand-copy">
+          <strong>PepPI Studio</strong>
+          <span>Static proof of concept for peptide-protein screening</span>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Primary">
+        <a href="#input">Predict</a>
+        <a href="#batch">Batch</a>
+        <a href="#results">Results</a>
+        <a href="#pipeline">Pipeline</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <span class="kicker">HTML-only proof of concept</span>
+          <h1>Screen peptide-protein interactions with a sequence-first workflow.</h1>
+          <p>
+            This mock website mirrors the notebook pipeline: the user provides peptide and protein
+            sequences, the backend generates embeddings, and the model returns a ranked interaction
+            score. No JavaScript or backend is wired yet, so this page is presentation only.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#input">Open input form</a>
+            <a class="ghost" href="#results">View mock results</a>
+          </div>
+          <div class="stats" aria-label="Model summary">
+            <div class="stat">
+              <strong>0.8748</strong>
+              <span>training AUC</span>
+            </div>
+            <div class="stat">
+              <strong>2048</strong>
+              <span>embedding features</span>
+            </div>
+            <div class="stat">
+              <strong>0.90</strong>
+              <span>decision threshold</span>
+            </div>
+            <div class="stat">
+              <strong>CSV</strong>
+              <span>batch-ready input</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="hero-aside">
+          <div class="signal-card">
+            <div class="title">Demo workflow</div>
+            <ul>
+              <li><b>1</b>
+                <div>Paste a peptide sequence or upload a CSV.</div>
+              </li>
+              <li><b>2</b>
+                <div>Resolve protein sequence from UniProt, PDB, or direct input.</div>
+              </li>
+              <li><b>3</b>
+                <div>Generate ProtT5 embeddings and run the classifier.</div>
+              </li>
+              <li><b>4</b>
+                <div>Sort hits by probability and export the shortlist.</div>
+              </li>
+            </ul>
+          </div>
+
+          <div class="signal-meta">
+            <div class="meta-tile">
+              <small>Supported sources</small>
+              <strong>UniProt, PDB, CSV</strong>
+            </div>
+            <div class="meta-tile">
+              <small>Model type</small>
+              <strong>Binary classifier</strong>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section-grid" id="input">
+        <div class="panel">
+          <h2>Single Pair Input</h2>
+          <p>
+            Enter one peptide and one protein sequence. A real backend would turn these into the
+            2048-feature vector used by the notebook before prediction.
+          </p>
+
+          <div class="form-grid">
+            <div class="field-row">
+              <div class="field">
+                <label for="peptide-seq">Peptide sequence</label>
+                <textarea id="peptide-seq" placeholder="Example: NEEAGWYANLGPMR"></textarea>
+              </div>
+              <div class="field">
+                <label for="protein-seq">Protein sequence</label>
+                <textarea id="protein-seq" placeholder="Example: MGCVQCKDKEATKLTEERDGSLNQSSGYRYGTDPTP..."></textarea>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="uniprot-id">UniProt ID</label>
+                <input id="uniprot-id" type="text" placeholder="Example: P06241">
+              </div>
+              <div class="field">
+                <label for="pdb-chain">PDB chain</label>
+                <input id="pdb-chain" type="text" placeholder="Example: 1F8R_A_1">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="threshold">Decision threshold</label>
+                <input id="threshold" type="text" value="0.90">
+              </div>
+              <div class="field">
+                <label for="notes">Operator note</label>
+                <input id="notes" type="text" placeholder="Optional: cancer target screening">
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button">Run placeholder prediction</button>
+              <a class="ghost" href="#pipeline">See processing flow</a>
+            </div>
+
+            <div class="note">
+              This page is UI-only. The actual prediction step requires a backend that converts the
+              sequences into embeddings before calling the model.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" id="batch">
+          <h2>Batch Upload</h2>
+          <p>
+            For bulk screening, the user should upload a CSV with sequence columns instead of typing
+            embeddings.
+          </p>
+
+          <div class="upload">
+            <strong>Drop a CSV file here</strong>
+            <p>
+              Required fields: peptide sequence, protein sequence, and identifiers. Embeddings can be
+              generated automatically after upload.
+            </p>
+            <p>
+              Example schema: <code>seq</code>, <code>prot_seq</code>, <code>Uniprot_id</code>,
+              <code>pdb_chain</code>
+            </p>
+          </div>
+
+          <div class="form-grid" style="margin-top: 16px;">
+            <div class="field">
+              <label for="csv-upload">CSV file</label>
+              <input id="csv-upload" type="file" accept=".csv">
+            </div>
+            <div class="field">
+              <label for="source-choice">Sequence source</label>
+              <select id="source-choice">
+                <option>Direct paste</option>
+                <option>UniProt lookup</option>
+                <option>PDB lookup</option>
+                <option>CSV upload</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="note">
+            In a full app, this panel would feed a parser, sequence retriever, embedding service, and
+            prediction API.
+          </div>
+        </div>
+      </section>
+
+      <section class="panel results" id="results">
+        <h2>Mock Results</h2>
+        <p>
+          Below is a static preview of the output layout the website could show after inference.
+        </p>
+
+        <div class="result-strip">
+          <div class="result-card">
+            <small>Top probability</small>
+            <strong>0.874</strong>
+            <span>Example score for a ranked interaction candidate.</span>
+          </div>
+          <div class="result-card">
+            <small>Predicted class</small>
+            <strong>Negative</strong>
+            <span>Class label depends on the configured threshold.</span>
+          </div>
+          <div class="result-card">
+            <small>Rank</small>
+            <strong>#1</strong>
+            <span>Results are sorted by probability from highest to lowest.</span>
+          </div>
+          <div class="result-card">
+            <small>Interpretation</small>
+            <strong>Review</strong>
+            <span>Anything close to the threshold can be flagged for manual inspection.</span>
+          </div>
+        </div>
+
+        <table aria-label="Mock prediction table">
+          <thead>
+            <tr>
+              <th>Pair</th>
+              <th>Probability</th>
+              <th>Status</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1F8R_A_1 + demo peptide</td>
+              <td>0.123</td>
+              <td><span class="badge negative">Negative</span></td>
+              <td>Test sample</td>
+            </tr>
+            <tr>
+              <td>P06241 + demo peptide</td>
+              <td>0.874</td>
+              <td><span class="badge positive">High confidence</span></td>
+              <td>Mock shortlist</td>
+            </tr>
+            <tr>
+              <td>P04439 + demo peptide</td>
+              <td>0.391</td>
+              <td><span class="badge negative">Borderline</span></td>
+              <td>Mock shortlist</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="panel pipeline" id="pipeline">
+        <h2>How the proof of concept works</h2>
+        <p>
+          The notebook already provides the inference path. The website just wraps it in a user-friendly
+          flow.
+        </p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <strong>Collect sequences</strong>
+            <p>User pastes a peptide and protein sequence, or selects a record by UniProt or PDB ID.</p>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <strong>Generate embeddings</strong>
+            <p>The backend converts both sequences into ProtT5-style vectors.</p>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <strong>Run the model</strong>
+            <p>The 2048-feature vector is passed to the trained Keras model.</p>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <strong>Show ranked hits</strong>
+            <p>The UI displays probability, threshold status, and export options.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>PepPI Studio static prototype</span>
+      <span>HTML-only, no JavaScript, no backend wired</span>
+    </footer>
+  </div>
+</body>
+
+</html>
