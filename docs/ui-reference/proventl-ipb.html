@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProVenTL — Snake Venom-Derived Peptide Interaction Tool</title>
+    <style>
+        :root {
+            /* IPB University Brand Colors */
+            --ipb-blue: #263c92;
+            --ipb-yellow: #fed80b;
+            --ipb-blue-soft: rgba(38, 60, 146, 0.08);
+            
+            --success: #22c55e;
+            --danger: #ef4444;
+            
+            --fg: #1e293b;
+            --muted: #64748b;
+            --border-glass: rgba(255, 255, 255, 0.6);
+            
+            --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+            
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* Shallow Design / Refined Mesh Gradient Background */
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(38, 60, 146, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, rgba(254, 216, 11, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(38, 60, 146, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 0% 100%, rgba(254, 216, 11, 0.05) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: var(--fg);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            text-wrap: pretty;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 4px 24px rgba(38, 60, 146, 0.04);
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0 3rem;
+        }
+
+        .brand-cluster {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .ipb-logo {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .divider {
+            width: 1px;
+            height: 32px;
+            background: rgba(38, 60, 146, 0.15);
+        }
+
+        .logo-text {
+            font-family: var(--font-display);
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--ipb-blue);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted);
+            letter-spacing: 0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-links a:hover {
+            color: var(--ipb-blue);
+        }
+
+        /* Search Section */
+        .search-container {
+            max-width: 700px;
+            margin: 2rem auto 5rem;
+            text-align: center;
+        }
+
+        .search-container h1 {
+            font-size: 3rem;
+            line-height: 1.1;
+            margin-bottom: 1.25rem;
+            color: var(--ipb-blue);
+        }
+
+        .search-container p {
+            color: var(--muted);
+            font-size: 1.125rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .search-wrapper {
+            position: relative;
+            border-radius: var(--radius-lg);
+            padding: 8px;
+            display: flex;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .search-wrapper:focus-within {
+            box-shadow: 0 12px 40px rgba(38, 60, 146, 0.1);
+            border-color: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .search-wrapper input {
+            flex: 1;
+            border: none;
+            padding: 14px 20px;
+            font-family: var(--font-body);
+            font-size: 1.0625rem;
+            outline: none;
+            background: transparent;
+            color: var(--fg);
+        }
+
+        .search-wrapper input::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-primary {
+            background: var(--ipb-blue);
+            color: #ffffff;
+            border: none;
+            padding: 0 28px;
+            border-radius: calc(var(--radius-lg) - 6px);
+            font-weight: 600;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(38, 60, 146, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #1c2d6e;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(38, 60, 146, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .threshold-section {
+            margin-top: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-lg);
+            text-align: left;
+            transition: var(--transition);
+        }
+
+        .threshold-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .threshold-header label {
+            font-weight: 600;
+            color: var(--ipb-blue);
+            font-size: 0.9375rem;
+        }
+
+        .threshold-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .threshold-controls input[type="range"] {
+            flex: 1;
+            accent-color: var(--ipb-blue);
+        }
+
+        .threshold-input {
+            width: 70px;
+            padding: 6px 10px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            text-align: center;
+            color: var(--fg);
+        }
+
+        .examples {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .example-btn {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--border-glass);
+            color: var(--muted);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+        }
+
+        .example-btn:hover {
+            border-color: var(--ipb-blue);
+            color: var(--ipb-blue);
+            background: white;
+        }
+
+        /* Results Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 2rem;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            pointer-events: none;
+            visibility: hidden;
+            margin-top: 3rem;
+        }
+
+        .dashboard-grid.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+            visibility: visible;
+        }
+
+        .card {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem 1.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            color: var(--ipb-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--ipb-yellow);
+            border-radius: 50%;
+        }
+
+        /* Table Styles */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem 1.75rem;
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        td {
+            padding: 1.25rem 1.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+            font-size: 0.8125rem;
+            color: var(--fg);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.03);
+            font-weight: 500;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-bar {
+            height: 6px;
+            width: 70px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--ipb-blue), #4f6bff);
+            border-radius: 3px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-true {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+        }
+
+        .status-false {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .btn-ghost {
+            background: rgba(38, 60, 146, 0.05);
+            border: 1px solid rgba(38, 60, 146, 0.1);
+            color: var(--ipb-blue);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-ghost:hover {
+            background: var(--ipb-blue);
+            color: white;
+            border-color: var(--ipb-blue);
+        }
+
+        /* Pagination Styles */
+        .pagination-container {
+            padding: 1.5rem 1.75rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--border-glass);
+            color: var(--muted);
+            font-size: 0.8125rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--ipb-blue);
+            color: var(--ipb-blue);
+            background: white;
+        }
+
+        .page-btn.active {
+            background: var(--ipb-blue);
+            color: white;
+            border-color: var(--ipb-blue);
+            box-shadow: 0 4px 12px rgba(38, 60, 146, 0.2);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Sidebar Info */
+        .info-list {
+            padding: 0.5rem 0;
+        }
+
+        .info-item {
+            padding: 1.25rem 1.75rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-weight: 500;
+            font-size: 0.9375rem;
+            color: var(--fg);
+        }
+
+        .info-value.desc {
+            font-size: 0.875rem;
+            color: #475569;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Loader */
+        .loading-state {
+            display: none;
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(38, 60, 146, 0.1);
+            border-top-color: var(--ipb-blue);
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Footer */
+        footer {
+            margin-top: 5rem;
+            padding: 3rem 0;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.8125rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        footer strong {
+            color: var(--ipb-blue);
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-container h1 {
+                font-size: 2.25rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            /* Stacked Navbar */
+            header {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.5rem;
+                padding: 1.5rem 0 2rem;
+            }
+            .brand-cluster {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 0.875rem;
+                width: 100%;
+            }
+            .ipb-logo {
+                height: 42px; /* Slightly smaller for mobile balance */
+            }
+            .divider {
+                display: block;
+                height: 28px;
+            }
+            .logo-text {
+                align-items: flex-start;
+                text-align: left;
+            }
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+                gap: 1.75rem;
+            }
+
+            .search-container h1 {
+                font-size: 2.25rem;
+            }
+
+            .search-wrapper {
+                flex-direction: column;
+                padding: 1rem;
+                background: rgba(255,255,255,0.7);
+            }
+            .btn-primary {
+                padding: 14px;
+                width: 100%;
+            }
+
+            /* Wrapping Tags */
+            .examples {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            .examples span {
+                width: 100%;
+                margin-bottom: 0.25rem;
+            }
+
+            /* Stacked Threshold */
+            .threshold-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            .threshold-input {
+                width: 100%;
+            }
+
+            /* Card-based Candidates UI */
+            .card-header {
+                padding: 1rem 1.25rem;
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .card-title {
+                justify-content: center;
+            }
+            .btn-ghost {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+            thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+            tr {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                padding: 1rem 0.5rem;
+            }
+            tr:last-child {
+                border-bottom: none;
+            }
+            td {
+                border: none;
+                position: relative;
+                padding: 0.75rem 1.25rem 0.75rem 45% !important;
+                text-align: right;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                min-height: 44px;
+            }
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1.25rem;
+                width: 40%;
+                text-align: left;
+                font-weight: 600;
+                font-size: 0.75rem;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            .score-container {
+                justify-content: flex-end;
+                width: 100%;
+            }
+            .score-bar {
+                width: 60px; /* Slightly narrower for mobile cards */
+            }
+
+            .info-item {
+                padding: 1rem 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand-cluster">
+                <img src="https://www.ipb.ac.id/wp-content/uploads/2025/08/Logo-IPB-New.png" alt="IPB University" class="ipb-logo">
+                <div class="divider"></div>
+                <a href="/" class="logo-text">
+                    ProVenTL
+                    <span>Snake Venom Research</span>
+                </a>
+            </div>
+            <nav class="nav-links">
+                <a href="https://github.com/ghiffaribraviah/proventl-website" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                    Github
+                </a>
+                <a href="#">API Docs</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="search-container" id="search-section">
+                <h1>Predict venom-derived anticancer peptides.</h1>
+                <p>ProVenTL leverages transfer learning and ProtT5 embeddings to identify high-affinity interactions between snake venom peptides and cancer-related proteins.</p>
+                
+                <div class="search-wrapper glass">
+                    <input type="text" id="protein-id" placeholder="Enter UniProt Entry ID (e.g. O00559, Q8TC20)" autocomplete="off" spellcheck="false">
+                    <button class="btn-primary" id="search-btn">Predict Affinity</button>
+                </div>
+
+                <div class="threshold-section glass" id="threshold-section">
+                    <div class="threshold-header">
+                        <label>Confidence Threshold</label>
+                    </div>
+                    <div class="threshold-controls">
+                        <input type="range" id="threshold-slider" min="0" max="1" step="0.01" value="0.70">
+                        <input type="number" id="threshold-input" class="threshold-input" min="0" max="1" step="0.01" value="0.70">
+                    </div>
+                </div>
+
+                <div class="examples">
+                    <span style="font-size: 0.8125rem; color: var(--muted); font-weight: 500;">Examples:</span>
+                    <button class="example-btn" onclick="setExample('O00559')">O00559</button>
+                    <button class="example-btn" onclick="setExample('Q8TC20')">Q8TC20</button>
+                    <button class="example-btn" onclick="setExample('P62952')">P62952</button>
+                    <button class="example-btn" onclick="setExample('P01133')">P01133</button>
+                </div>
+            </section>
+
+            <div class="loading-state" id="loader">
+                <div class="loader"></div>
+                <p style="margin-top: 1.25rem; font-size: 0.9375rem; color: var(--ipb-blue); font-weight: 600;">Running ProVenTL inference...</p>
+                <p style="font-size: 0.8125rem; color: var(--muted);">Analyzing sequence</p>
+            </div>
+
+            <div class="dashboard-grid" id="dashboard">
+                <div class="card glass">
+                    <div class="card-header">
+                        <h2 class="card-title">Top-Ranked Peptide Candidates</h2>
+                        <button class="btn-ghost" id="export-btn">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Export CSV
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">Rank</th>
+                                    <th>Peptide Seq</th>
+                                    <th>Confidence</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-body">
+                                <!-- JS Inject -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container" id="pagination-container" style="display: none;">
+                        <!-- JS Inject -->
+                    </div>
+                </div>
+
+                <div class="card glass">
+                    <div class="card-header">
+                        <h2 class="card-title">Target Protein Profile</h2>
+                    </div>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <div class="info-label">UniProt Entry ID</div>
+                            <div class="info-value"><span class="mono" id="res-id" style="background: rgba(38,60,146,0.05); border:none; color: var(--ipb-blue); font-weight: 700;">-</span></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Protein Name</div>
+                            <div class="info-value" id="res-protein-name">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Gene</div>
+                            <div class="info-value" id="res-gene-name">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Organism</div>
+                            <div class="info-value" id="res-organism">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Key Functions</div>
+                            <div class="info-value desc" id="res-functions" title="Hover for more">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Sequence Length</div>
+                            <div class="info-value" id="res-sequence-length">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Molecular Weight</div>
+                            <div class="info-value" id="res-mass">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            &copy; 2026 ProVenTL Framework. Adhiva et al. <br>
+            Supported by <strong>IPB University</strong>.
+        </footer>
+    </div>
+
+    <script>
+        const searchBtn = document.getElementById('search-btn');
+        const proteinInput = document.getElementById('protein-id');
+        const dashboard = document.getElementById('dashboard');
+        const loader = document.getElementById('loader');
+        const resultsBody = document.getElementById('results-body');
+        const resId = document.getElementById('res-id');
+        const paginationContainer = document.getElementById('pagination-container');
+        const exportBtn = document.getElementById('export-btn');
+
+        // Threshold Elements
+        const thresholdSlider = document.getElementById('threshold-slider');
+        const thresholdInput = document.getElementById('threshold-input');
+
+        let appliedThreshold = 0.70;
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Link slider and number input only (no live update)
+        thresholdSlider.addEventListener('input', (e) => {
+            thresholdInput.value = e.target.value;
+        });
+
+        thresholdInput.addEventListener('input', (e) => {
+            let val = parseFloat(e.target.value);
+            if (isNaN(val)) val = 0;
+            if (val > 1) val = 1;
+            if (val < 0) val = 0;
+            thresholdSlider.value = val;
+        });
+
+        // Mock candidates (30 items)
+        const candidates = [
+            { seq: 'KNGCYPGT', score: 0.862 }, { seq: 'GDCMTVPT', score: 0.815 },
+            { seq: 'CRVLLSGA', score: 0.781 }, { seq: 'QPLRWLAV', score: 0.744 },
+            { seq: 'TVLLPAGS', score: 0.689 }, { seq: 'VLPPLWTR', score: 0.621 },
+            { seq: 'ACTGRLP', score: 0.590 }, { seq: 'PGRLCVW', score: 0.540 },
+            { seq: 'LLVGRTC', score: 0.490 }, { seq: 'CVTGLPR', score: 0.450 },
+            { seq: 'WPLRGLA', score: 0.430 }, { seq: 'RTVLPAG', score: 0.410 },
+            { seq: 'VGRLCPW', score: 0.380 }, { seq: 'LLVGRTA', score: 0.360 },
+            { seq: 'KNGCYPAA', score: 0.340 }, { seq: 'GDCMTVAA', score: 0.320 },
+            { seq: 'CRVLLSAA', score: 0.300 }, { seq: 'QPLRWLAA', score: 0.280 },
+            { seq: 'TVLLPAAA', score: 0.260 }, { seq: 'VLPPLWAA', score: 0.240 },
+            { seq: 'ACTGRLAA', score: 0.220 }, { seq: 'PGRLCVAA', score: 0.200 },
+            { seq: 'LLVGRTAA', score: 0.180 }, { seq: 'CVTGLPAA', score: 0.160 },
+            { seq: 'WPLRGLAA', score: 0.140 }, { seq: 'RTVLPABA', score: 0.120 },
+            { seq: 'VGRLCPBA', score: 0.100 }, { seq: 'LLVGRTBA', score: 0.080 },
+            { seq: 'KNGCYPBA', score: 0.060 }, { seq: 'GDCMTVBA', score: 0.040 }
+        ];
+
+        function setExample(id) {
+            proteinInput.value = id;
+            analyze();
+        }
+
+        function renderResults() {
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const displayList = candidates.slice(start, end);
+            
+            resultsBody.innerHTML = displayList.map((c, index) => {
+                const actualRank = start + index + 1;
+                const isPositive = c.score >= appliedThreshold;
+                return `
+                <tr>
+                    <td style="font-weight: 600; color: var(--muted);" data-label="Rank">${actualRank}</td>
+                    <td data-label="Peptide Seq"><span class="mono">${c.seq}</span></td>
+                    <td data-label="Confidence">
+                        <div class="score-container">
+                            <div class="score-bar"><div class="score-fill" style="width: ${c.score * 100}%"></div></div>
+                            <span style="font-weight: 500; font-family: var(--font-mono); font-size: 0.8125rem;">${c.score.toFixed(3)}</span>
+                        </div>
+                    </td>
+                    <td data-label="Result">
+                        <span class="status-badge ${isPositive ? 'status-true' : 'status-false'}">
+                            ${isPositive ? 'True' : 'False'}
+                        </span>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(candidates.length / itemsPerPage);
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            paginationContainer.style.display = 'flex';
+            let html = '';
+            
+            // Previous
+            html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+
+            // Next
+            html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>`;
+
+            paginationContainer.innerHTML = html;
+        }
+
+        window.changePage = function(page) {
+            currentPage = page;
+            renderResults();
+            renderPagination();
+            // Smooth scroll to table start for better mobile UX
+            const tableElement = document.querySelector('.table-wrapper');
+            if (tableElement) {
+                tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
+        async function analyze() {
+            const id = proteinInput.value.trim();
+            if (!id) return;
+
+            appliedThreshold = parseFloat(thresholdInput.value) || 0.70;
+            currentPage = 1; // Reset to page 1
+
+            searchBtn.disabled = true;
+            loader.style.display = 'block';
+            dashboard.classList.remove('visible');
+            
+            // Reset fields
+            resId.textContent = id.toUpperCase();
+            document.getElementById('res-protein-name').textContent = 'Loading...';
+            document.getElementById('res-gene-name').textContent = 'Loading...';
+            document.getElementById('res-organism').textContent = 'Loading...';
+            document.getElementById('res-functions').textContent = 'Loading...';
+            document.getElementById('res-sequence-length').textContent = 'Loading...';
+            document.getElementById('res-mass').textContent = 'Loading...';
+
+            try {
+                const response = await fetch(`https://rest.uniprot.org/uniprotkb/${id}.json`);
+                if (!response.ok) throw new Error('Protein not found');
+                const data = await response.json();
+                
+                const pName = data.proteinDescription?.recommendedName?.fullName?.value || 'N/A';
+                const gName = data.genes?.[0]?.geneName?.value || 'N/A';
+                const org = data.organism?.scientificName || 'N/A';
+                
+                let functions = 'N/A';
+                const funcComment = data.comments?.find(c => c.commentType === 'FUNCTION');
+                if (funcComment && funcComment.texts && funcComment.texts.length > 0) {
+                    functions = funcComment.texts[0].value;
+                }
+                
+                const seqLen = data.sequence?.length ? data.sequence.length + ' AA' : 'N/A';
+                const mass = data.sequence?.molWeight ? (data.sequence.molWeight / 1000).toFixed(2) + ' kDa' : 'N/A';
+
+                document.getElementById('res-protein-name').textContent = pName;
+                document.getElementById('res-gene-name').textContent = gName;
+                document.getElementById('res-organism').textContent = org;
+                document.getElementById('res-functions').textContent = functions;
+                document.getElementById('res-functions').title = functions;
+                document.getElementById('res-sequence-length').textContent = seqLen;
+                document.getElementById('res-mass').textContent = mass;
+                
+            } catch (err) {
+                document.getElementById('res-protein-name').textContent = 'Error fetching data';
+                console.error(err);
+            }
+
+            setTimeout(() => {
+                loader.style.display = 'none';
+                dashboard.classList.add('visible');
+                searchBtn.disabled = false;
+                renderResults();
+                renderPagination();
+            }, 800);
+        }
+
+        searchBtn.addEventListener('click', analyze);
+        proteinInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') analyze(); });
+
+        exportBtn.addEventListener('click', () => {
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Rank,Peptide Seq,Confidence,Result\n"
+                + candidates.map((c, i) => `${i+1},${c.seq},${c.score.toFixed(3)},${c.score >= appliedThreshold ? 'True' : 'False'}`).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `proventl_export_${proteinInput.value || 'results'}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
