@@ -15,3 +15,5 @@ apps/web/playwright-report/
 data/
 .scratch/
 docs/
+.agents/
+AGENTS.md

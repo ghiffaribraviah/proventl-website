@@ -8,6 +8,9 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 COPY pyproject.toml uv.lock ./
+COPY Makefile compose.yml ./
+COPY .github/workflows/backend-ci-smoke.yml ./.github/workflows/backend-ci-smoke.yml
+COPY scripts ./scripts
 COPY apps/api/src ./apps/api/src
 COPY apps/api/tests ./apps/api/tests
 

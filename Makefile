@@ -15,6 +15,7 @@ api-docker-test:
 	docker compose --profile test run --rm api-test
 
 api-docker-smoke:
+	docker compose --profile smoke build api-smoke
 	docker compose --profile smoke run --rm api-smoke
 
 web-dev:
