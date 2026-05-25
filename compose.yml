@@ -1,0 +1,73 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: uv run uvicorn proventl_api.app:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/api/src:/app/apps/api/src:ro
+      - ./model:/app/model:ro
+      - ./data:/app/data
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PROVENTL_MODEL_PATH: /app/model/best_model_auc_0.8748.h5
+      PROVENTL_PEPTIDE_EMBEDDINGS_PATH: /app/model/data_testing/Pep_Ular_ProtT5.csv
+      PROVENTL_PROTEIN_EMBEDDINGS_PATH: /app/model/data_testing/Prot_Cancer_ProtT5.csv
+      PROVENTL_TARGET_METADATA_PATH: /app/model/data_testing/data_protein_kanker_uniprot.csv
+      PROVENTL_APP_DATA_DIR: /app/data
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    command: npm run dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
+    environment:
+      VITE_API_PROXY_TARGET: http://api:8000
+    depends_on:
+      - api
+
+  api-test:
+    profiles:
+      - test
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: uv run pytest apps/api/tests
+    volumes:
+      - ./apps/api/src:/app/apps/api/src:ro
+      - ./apps/api/tests:/app/apps/api/tests:ro
+      - ./model:/app/model:ro
+      - ./data:/app/data
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PROVENTL_MODEL_PATH: /app/model/best_model_auc_0.8748.h5
+      PROVENTL_PEPTIDE_EMBEDDINGS_PATH: /app/model/data_testing/Pep_Ular_ProtT5.csv
+      PROVENTL_PROTEIN_EMBEDDINGS_PATH: /app/model/data_testing/Prot_Cancer_ProtT5.csv
+      PROVENTL_TARGET_METADATA_PATH: /app/model/data_testing/data_protein_kanker_uniprot.csv
+      PROVENTL_APP_DATA_DIR: /app/data
+
+  api-smoke:
+    profiles:
+      - smoke
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: ./scripts/backend_ci_smoke.sh
+    volumes:
+      - ./scripts:/app/scripts:ro
+      - ./model:/app/model:ro
+      - ./data:/app/data
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PROVENTL_MODEL_PATH: /app/model/best_model_auc_0.8748.h5
+      PROVENTL_PEPTIDE_EMBEDDINGS_PATH: /app/model/data_testing/Pep_Ular_ProtT5.csv
+      PROVENTL_PROTEIN_EMBEDDINGS_PATH: /app/model/data_testing/Prot_Cancer_ProtT5.csv
+      PROVENTL_TARGET_METADATA_PATH: /app/model/data_testing/data_protein_kanker_uniprot.csv
+      PROVENTL_APP_DATA_DIR: /app/data

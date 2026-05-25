@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+@layer components {
+  .glass-panel {
+    @apply border border-white/70 bg-white/70 shadow-[0_4px_24px_rgba(38,60,146,0.04)] backdrop-blur-2xl;
+  }
+
+  .table-heading {
+    @apply border-b border-black/5 bg-black/[0.01] px-5 py-5 text-xs font-bold uppercase tracking-normal text-slate-500;
+  }
+
+  .responsive-cell {
+    @apply px-5 py-5 max-sm:relative max-sm:flex max-sm:min-h-10 max-sm:items-center max-sm:justify-end max-sm:px-0 max-sm:py-2 max-sm:pl-[45%] max-sm:text-right max-sm:before:absolute max-sm:before:left-0 max-sm:before:text-[0.65rem] max-sm:before:font-extrabold max-sm:before:uppercase max-sm:before:tracking-normal max-sm:before:text-slate-500;
+  }
+}

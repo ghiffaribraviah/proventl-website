@@ -1,1 +1,17 @@
 data_testing/data_testing_PepPI.csv
+.venv/
+.pytest_cache/
+.uv-cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+node_modules/
+dist/
+apps/web/.vite/
+apps/web/tsconfig.tsbuildinfo
+apps/web/test-results/
+apps/web/playwright-report/
+.playwright-data/
+data/
+.scratch/
+docs/

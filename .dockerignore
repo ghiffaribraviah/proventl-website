@@ -1,0 +1,15 @@
+.git
+.pytest_cache
+.uv-cache
+.venv
+__pycache__
+*.py[cod]
+node_modules
+dist
+apps/web/node_modules
+apps/web/dist
+
+docs
+model
+data
+.scratch
