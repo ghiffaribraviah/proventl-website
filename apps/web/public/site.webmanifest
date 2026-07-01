@@ -1,0 +1,20 @@
+{
+  "name": "ProVenTL",
+  "short_name": "ProVenTL",
+  "description": "Venom peptide interaction analysis for curated cancer protein targets.",
+  "icons": [
+    {
+      "src": "/brand/proventl-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/proventl-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#1f3f99",
+  "background_color": "#f8fafc",
+  "display": "standalone"
+}

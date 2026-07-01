@@ -18,3 +18,17 @@ test("header uses the official IPB University website logo", async ({
     logoLink.getByRole("img", { name: "IPB University" }),
   ).toHaveAttribute("src", officialIpbLogoUrl);
 });
+
+test("header and browser metadata use the ProVenTL mark", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(
+    page.locator('button[aria-label="Go to ProVenTL home"] img'),
+  ).toHaveAttribute("src", "/brand/proventl-logo.svg");
+  await expect(
+    page.locator('link[rel="icon"][type="image/svg+xml"]'),
+  ).toHaveAttribute("href", "/brand/proventl-logo.svg");
+  await expect(
+    page.locator('link[rel="icon"][sizes="512x512"]'),
+  ).toHaveAttribute("href", "/brand/proventl-icon-512.png");
+});

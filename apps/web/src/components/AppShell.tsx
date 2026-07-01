@@ -24,6 +24,8 @@ const navigationIcons: Record<AppRoute, typeof Home> = {
   methodology: FlaskConical,
 };
 
+const PROVENTL_LOGO_URL = "/brand/proventl-logo.svg";
+
 type AppShellProps = {
   activeRoute: AppRoute;
   children: ReactNode;
@@ -32,7 +34,7 @@ type AppShellProps = {
 };
 
 const IPB_UNIVERSITY_LOGO_URL =
-  "https://www.ipb.ac.id/wp-content/uploads/2025/08/Logo-IPB-New.png";
+  "https://www.ipb.ac.id/wp-content/uploads/2023/12/Logo-IPB-University_Horizontal.png";
 
 export function AppShell({
   activeRoute,
@@ -48,28 +50,40 @@ export function AppShell({
       />
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1150px] flex-col px-4 py-6 sm:px-6">
         <header className="flex flex-col gap-5 pb-10 pt-1 max-sm:items-center max-sm:text-center sm:pb-12 sm:flex-row sm:items-center sm:justify-between">
-          <a
-            href="/"
-            className="flex items-center gap-5 no-underline max-sm:flex-col max-sm:gap-2"
-          >
-            <img
-              src={IPB_UNIVERSITY_LOGO_URL}
-              alt="IPB University"
-              className="h-12 w-auto"
-            />
+          <div className="flex items-center gap-5 max-sm:flex-col max-sm:gap-3">
+            <a
+              href="https://www.ipb.ac.id/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="IPB University"
+              className="inline-flex no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ipb-blue"
+            >
+              <img
+                src={IPB_UNIVERSITY_LOGO_URL}
+                alt="IPB University"
+                className="h-10 w-auto sm:h-12"
+              />
+            </a>
             <div className="hidden h-8 w-px bg-ipb-blue/15 sm:block" />
             <button
               type="button"
               onClick={() => onRouteChange("home")}
-              className="flex flex-col text-left font-display text-[1.125rem] font-extrabold leading-tight text-ipb-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ipb-blue"
+              className="flex items-center gap-3 text-left font-display text-[1.125rem] font-extrabold leading-tight text-ipb-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ipb-blue max-sm:justify-center"
               aria-label="Go to ProVenTL home"
             >
-              ProVenTL
-              <span className="text-xs font-medium text-muted">
-                Venom Interaction Analysis
+              <img
+                src={PROVENTL_LOGO_URL}
+                alt=""
+                className="h-14 w-auto flex-none"
+              />
+              <span className="flex flex-col">
+                ProVenTL
+                <span className="text-xs font-medium text-muted">
+                  Venom Interaction Analysis
+                </span>
               </span>
             </button>
-          </a>
+          </div>
 
           <nav
             aria-label="Primary navigation"
