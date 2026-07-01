@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { AppShell } from "./components/AppShell";
+import { BatchPage } from "./pages/BatchPage";
 import { CitationPage } from "./pages/CitationPage";
 import { DocsPage } from "./pages/DocsPage";
 import { HomePage } from "./pages/HomePage";
@@ -8,10 +9,11 @@ import { MethodologyPage } from "./pages/MethodologyPage";
 import { pathForRoute, routeFromPath, type AppRoute } from "./routes";
 
 const routeLabels: Record<AppRoute, string> = {
-  home: "Home",
-  docs: "Docs",
-  methodology: "Methodology",
+  batch: "Batch",
   citation: "Citation",
+  docs: "Docs",
+  home: "Home",
+  methodology: "Methodology",
 };
 
 export function App() {
@@ -42,6 +44,7 @@ export function App() {
       onRouteChange={handleRouteChange}
     >
       {activeRoute === "home" ? <HomePage /> : null}
+      {activeRoute === "batch" ? <BatchPage /> : null}
       {activeRoute === "docs" ? <DocsPage /> : null}
       {activeRoute === "methodology" ? <MethodologyPage /> : null}
       {activeRoute === "citation" ? <CitationPage /> : null}

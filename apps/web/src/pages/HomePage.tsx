@@ -1,10 +1,4 @@
-import {
-  ArrowRight,
-  Info,
-  Search,
-  ShieldCheck,
-  SlidersHorizontal,
-} from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 import { DEFAULT_THRESHOLD } from "../features/results/thresholdInterpretation";
@@ -458,25 +452,5 @@ function PredictionInlineState({
       />
       <TargetProfile target={predictionState.result.target} />
     </section>
-  );
-}
-
-type WorkflowCardProps = {
-  body: string;
-  icon: typeof ShieldCheck;
-  title: string;
-};
-
-function WorkflowCard({ body, icon: Icon, title }: WorkflowCardProps) {
-  return (
-    <article className="glass-panel rounded-2xl p-5">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-ipb-yellow/35 text-ipb-blue">
-        <Icon className="h-5 w-5" aria-hidden="true" />
-      </div>
-      <h3 className="font-display text-lg font-extrabold text-ipb-blue">
-        {title}
-      </h3>
-      <p className="mt-2 text-sm leading-6 text-slate-500">{body}</p>
-    </article>
   );
 }

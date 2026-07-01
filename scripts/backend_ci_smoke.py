@@ -18,6 +18,7 @@ def main() -> int:
             _verify_curated_lookup(client)
             _verify_machine_readable_prediction_error(client)
             _verify_real_prediction_and_cache_reuse(client)
+            _verify_real_batch_prediction(client)
     finally:
         if server is not None:
             server.terminate()
@@ -103,6 +104,26 @@ def _verify_real_prediction_and_cache_reuse(client: httpx.Client) -> None:
     second_payload = second_response.json()
     assert len(first_payload["predictions"]) == 145
     assert first_payload == second_payload
+
+
+def _verify_real_batch_prediction(client: httpx.Client) -> None:
+    response = client.post(
+        "/api/predictions/batch",
+        json={"target_uniprot_ids": ["P01133", "P00749"], "threshold": 0.95},
+    )
+    _assert_status(response, 200)
+    payload = response.json()
+    assert payload["summary"] == {
+        "submitted": 2,
+        "deduped": 0,
+        "succeeded": 2,
+        "rejected": 0,
+    }
+    assert [result["target"]["uniprot_id"] for result in payload["results"]] == [
+        "P01133",
+        "P00749",
+    ]
+    assert [len(result["predictions"]) for result in payload["results"]] == [145, 145]
 
 
 def _assert_status(response: httpx.Response, expected_status: int) -> None:

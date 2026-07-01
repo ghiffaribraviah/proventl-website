@@ -1,6 +1,6 @@
 # ProVenTL Website
 
-ProVenTL is a web application for exploring peptide-protein interaction predictions between snake venom-derived peptides and cancer-related protein targets. The project packages a React frontend, an internal FastAPI backend, model/data artifacts, and Docker-based development workflows for the ProVenTL V1 prediction dashboard.
+ProVenTL is a web application for exploring peptide-protein interaction predictions between snake venom-derived peptides and cancer-related protein targets. The project packages a React frontend, an internal FastAPI backend, model/data artifacts, and Docker-based development workflows for the ProVenTL V2 prediction dashboard.
 
 The app is based on the ProVenTL framework from Adhiva et al. (2026), using ProtT5 protein language model embeddings and a trained deep learning model to rank venom peptide candidates against curated UniProt cancer target proteins.
 
@@ -160,10 +160,11 @@ make web-smoke
 - [Frontend spec](docs/planning/frontend-spec.md)
 - [API README](apps/api/README.md)
 - [Web README](apps/web/README.md)
+- [VPS production deploy](deploy/README.md)
 
 ## Notes
 
 - Prediction results are cached in SQLite under the configured app data directory.
 - Curated predictions are based on local embeddings and do not require live UniProt availability.
 - Optional UniProt lookup is used for explicit unsupported accession checks.
-- The V1 backend is intentionally app-internal, so endpoint contracts may change before a public API version exists.
+- The backend is intentionally app-internal, so endpoint contracts may change before a public API version exists.

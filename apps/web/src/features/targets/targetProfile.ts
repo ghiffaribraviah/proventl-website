@@ -14,9 +14,9 @@ export function targetProfileRows(target: TargetPreview): TargetProfileRow[] {
     optionalRow("Protein Name", target.proteinName),
     optionalRow("Organism", target.organism),
     optionalRow("Protein Family", target.proteinFamily),
-    optionalRow("Sequence Length", target.sequenceLength),
+    optionalRow("Functions", target.functionSummary),
     optionalRow("Molecular Weight", target.molecularWeight),
-    optionalRow("Function Summary", target.functionSummary),
+    optionalRow("Sequence Length", target.sequenceLength),
   ].filter((row): row is TargetProfileRow => row !== null);
 }
 

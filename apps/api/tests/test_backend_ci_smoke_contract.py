@@ -28,3 +28,4 @@ def test_backend_ci_smoke_path_is_exposed_to_maintainers_and_github_actions():
     assert "scripts/backend_ci_smoke.py --start-server" in smoke_script
     assert "\"uvicorn\"" in smoke_runner
     assert "\"proventl_api.app:app\"" in smoke_runner
+    assert "\"/api/predictions/batch\"" in smoke_runner

@@ -17,6 +17,8 @@ services:
       PROVENTL_PROTEIN_EMBEDDINGS_PATH: /app/model/data_testing/Prot_Cancer_ProtT5.csv
       PROVENTL_TARGET_METADATA_PATH: /app/model/data_testing/data_protein_kanker_uniprot.csv
       PROVENTL_APP_DATA_DIR: /app/data
+      PROVENTL_BATCH_MAX_TARGETS: "50"
+      PROVENTL_RATE_LIMIT_PREDICTION_BATCH_REQUESTS: "5"
 
   web:
     build:
@@ -52,6 +54,8 @@ services:
       PROVENTL_PROTEIN_EMBEDDINGS_PATH: /app/model/data_testing/Prot_Cancer_ProtT5.csv
       PROVENTL_TARGET_METADATA_PATH: /app/model/data_testing/data_protein_kanker_uniprot.csv
       PROVENTL_APP_DATA_DIR: /app/data
+      PROVENTL_BATCH_MAX_TARGETS: "50"
+      PROVENTL_RATE_LIMIT_PREDICTION_BATCH_REQUESTS: "5"
 
   api-smoke:
     profiles:
@@ -71,3 +75,5 @@ services:
       PROVENTL_PROTEIN_EMBEDDINGS_PATH: /app/model/data_testing/Prot_Cancer_ProtT5.csv
       PROVENTL_TARGET_METADATA_PATH: /app/model/data_testing/data_protein_kanker_uniprot.csv
       PROVENTL_APP_DATA_DIR: /app/data
+      PROVENTL_BATCH_MAX_TARGETS: "50"
+      PROVENTL_RATE_LIMIT_PREDICTION_BATCH_REQUESTS: "5"

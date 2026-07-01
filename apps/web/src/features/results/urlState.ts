@@ -5,6 +5,10 @@ export type ResultUrlState = {
   threshold: number;
 };
 
+export type BatchUrlState = {
+  threshold: number;
+};
+
 export function readResultUrlState(location: Location): ResultUrlState {
   const params = new URLSearchParams(location.search);
   const target = params.get("target")?.trim().toUpperCase() || null;
@@ -23,6 +27,24 @@ export function updateResultUrl(
 ): void {
   const url = new URL(location.href);
   url.searchParams.set("target", targetUniprotId);
+  url.searchParams.set("threshold", threshold.toFixed(2));
+  history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+export function readBatchUrlState(location: Location): BatchUrlState {
+  const params = new URLSearchParams(location.search);
+
+  return {
+    threshold: parseUrlThreshold(params.get("threshold")),
+  };
+}
+
+export function updateBatchUrl(
+  threshold: number,
+  location: Pick<Location, "href"> = window.location,
+  history: Pick<History, "replaceState"> = window.history,
+): void {
+  const url = new URL(location.href);
   url.searchParams.set("threshold", threshold.toFixed(2));
   history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }

@@ -40,6 +40,19 @@ async def post_prediction_content(
         )
 
 
+async def post_batch_prediction(
+    payload: dict[str, object],
+    *,
+    model_loader=None,
+) -> httpx.Response:
+    transport = httpx.ASGITransport(app=create_app(model_loader=model_loader))
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://testserver",
+    ) as client:
+        return await client.post("/api/predictions/batch", json=payload)
+
+
 def test_prediction_endpoint_returns_ranked_rows_for_curated_target(
     monkeypatch,
     tmp_path,
@@ -61,6 +74,7 @@ def test_prediction_endpoint_returns_ranked_rows_for_curated_target(
         "protein_name": "Epidermal growth factor receptor",
         "organism": "Homo sapiens",
         "protein_family": "Receptor tyrosine kinase",
+        "sequence": "PROTEIN_A",
     }
     assert payload["threshold"] == 0.50
     assert payload["model"] == {
@@ -102,6 +116,251 @@ def test_prediction_endpoint_returns_ranked_rows_for_curated_target(
             "classification": "below threshold",
         },
     ]
+
+
+def test_batch_prediction_endpoint_returns_results_for_curated_targets(
+    monkeypatch,
+    tmp_path,
+):
+    artifacts = configure_prediction_artifacts(monkeypatch, tmp_path)
+
+    response = asyncio.run(
+        post_batch_prediction(
+            {"target_uniprot_ids": [" p01133 ", "P00749"], "threshold": 0.50},
+            model_loader=lambda path: FeatureSumModel(),
+        )
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["threshold"] == 0.50
+    assert payload["cap"] == 50
+    assert payload["summary"] == {
+        "submitted": 2,
+        "deduped": 0,
+        "succeeded": 2,
+        "rejected": 0,
+    }
+    assert payload["model"] == {
+        "version": "best_model_auc_0.8748",
+        "hash": hashlib.sha256(b"model artifact").hexdigest()[:8],
+    }
+    assert payload["data"] == {
+        "peptide_embeddings_hash": artifacts["peptide_hash"],
+        "protein_embeddings_hash": artifacts["protein_hash"],
+    }
+    assert payload["rejected"] == []
+    assert [result["target"]["uniprot_id"] for result in payload["results"]] == [
+        "P01133",
+        "P00749",
+    ]
+    assert [result["target"]["sequence"] for result in payload["results"]] == [
+        "PROTEIN_A",
+        "PROTEIN_B",
+    ]
+    assert payload["results"][0]["summary"] == {
+        "total": 3,
+        "high_confidence": 2,
+        "below_threshold": 1,
+    }
+    assert payload["results"][1]["summary"] == {
+        "total": 3,
+        "high_confidence": 0,
+        "below_threshold": 3,
+    }
+    assert payload["results"][0]["predictions"][0]["peptide_id"] == "VP_HIGH"
+    assert payload["results"][1]["predictions"][0]["peptide_id"] == "VP_HIGH"
+
+
+def test_batch_prediction_endpoint_deduplicates_normalized_targets(
+    monkeypatch,
+    tmp_path,
+):
+    configure_prediction_artifacts(monkeypatch, tmp_path)
+    model = CountingFeatureSumModel()
+
+    response = asyncio.run(
+        post_batch_prediction(
+            {
+                "target_uniprot_ids": ["P01133", " p01133 ", "P00749", "P00749"],
+                "threshold": 0.50,
+            },
+            model_loader=lambda path: model,
+        )
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["summary"] == {
+        "submitted": 4,
+        "deduped": 2,
+        "succeeded": 2,
+        "rejected": 0,
+    }
+    assert [result["target"]["uniprot_id"] for result in payload["results"]] == [
+        "P01133",
+        "P00749",
+    ]
+    assert model.predict_call_count == 2
+
+
+def test_batch_prediction_endpoint_reports_rejections_without_blocking_valid_targets(
+    monkeypatch,
+    tmp_path,
+):
+    configure_prediction_artifacts(
+        monkeypatch,
+        tmp_path,
+        protein_rows=[("P01133", ["PROTEIN_A"], 0.30)],
+    )
+
+    def registry_with_missing_embedding(config, generated_at):
+        return type(
+            "Registry",
+            (),
+            {
+                "targets": [
+                    {
+                        "uniprot_id": "P01133",
+                        "gene": "EGFR",
+                        "protein_name": "Epidermal growth factor receptor",
+                    },
+                    {
+                        "uniprot_id": "P00749",
+                        "gene": "PLAU",
+                        "protein_name": "Urokinase-type plasminogen activator",
+                    },
+                ]
+            },
+        )()
+
+    monkeypatch.setattr(
+        "proventl_api.api.predictions.generate_configured_curated_target_registry",
+        registry_with_missing_embedding,
+    )
+
+    response = asyncio.run(
+        post_batch_prediction(
+            {
+                "target_uniprot_ids": [
+                    "not-a-uniprot-id",
+                    "Q9Y6K9",
+                    "P00749",
+                    "P01133",
+                ],
+                "threshold": 0.50,
+            },
+            model_loader=lambda path: FeatureSumModel(),
+        )
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["summary"] == {
+        "submitted": 4,
+        "deduped": 0,
+        "succeeded": 1,
+        "rejected": 3,
+    }
+    assert [result["target"]["uniprot_id"] for result in payload["results"]] == [
+        "P01133"
+    ]
+    assert payload["rejected"] == [
+        {
+            "input": "not-a-uniprot-id",
+            "normalized_target_uniprot_id": "NOT-A-UNIPROT-ID",
+            "code": "INVALID_ACCESSION",
+            "message": "Enter a valid UniProt accession.",
+        },
+        {
+            "input": "Q9Y6K9",
+            "normalized_target_uniprot_id": "Q9Y6K9",
+            "code": "UNSUPPORTED_TARGET",
+            "message": "Target is not available for prediction.",
+        },
+        {
+            "input": "P00749",
+            "normalized_target_uniprot_id": "P00749",
+            "code": "MISSING_TARGET_EMBEDDING",
+            "message": "Target is missing the embedding required for prediction.",
+        },
+    ]
+
+
+def test_batch_prediction_endpoint_rejects_requests_over_configured_cap(
+    monkeypatch,
+    tmp_path,
+):
+    configure_prediction_artifacts(monkeypatch, tmp_path)
+    monkeypatch.setenv("PROVENTL_BATCH_MAX_TARGETS", "2")
+
+    response = asyncio.run(
+        post_batch_prediction(
+            {
+                "target_uniprot_ids": ["P01133", "p01133", "P00749", "Q9Y6K9"],
+                "threshold": 0.50,
+            },
+            model_loader=lambda path: FeatureSumModel(),
+        )
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "state": "invalid-request",
+        "error": {
+            "code": "BATCH_TOO_LARGE",
+            "field": "target_uniprot_ids",
+            "message": "Batch contains 3 deduplicated targets, exceeding the cap of 2.",
+            "cap": 2,
+            "submitted": 3,
+        },
+    }
+
+
+def test_batch_prediction_endpoint_rejects_thresholds_outside_v1_range(
+    monkeypatch,
+    tmp_path,
+):
+    configure_prediction_artifacts(monkeypatch, tmp_path)
+
+    for threshold in (0.49, 1.0):
+        response = asyncio.run(
+            post_batch_prediction(
+                {"target_uniprot_ids": ["P01133"], "threshold": threshold},
+                model_loader=lambda path: FeatureSumModel(),
+            )
+        )
+
+        assert response.status_code == 400
+        assert response.json() == {
+            "state": "invalid-request",
+            "error": {
+                "code": "INVALID_THRESHOLD",
+                "field": "threshold",
+                "message": "Threshold must be between 0.50 and 0.99.",
+            },
+        }
+
+
+def test_batch_prediction_endpoint_reuses_cached_probabilities_on_repeat_batches(
+    monkeypatch,
+    tmp_path,
+):
+    configure_prediction_artifacts(monkeypatch, tmp_path)
+    model = CountingFeatureSumModel()
+    payload = {"target_uniprot_ids": ["P01133", "P00749"], "threshold": 0.50}
+
+    first_response = asyncio.run(
+        post_batch_prediction(payload, model_loader=lambda path: model)
+    )
+    second_response = asyncio.run(
+        post_batch_prediction(payload, model_loader=lambda path: model)
+    )
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert second_response.json() == first_response.json()
+    assert model.predict_call_count == 2
 
 
 def test_prediction_endpoint_reuses_cached_probabilities_without_model_inference(
@@ -397,7 +656,7 @@ def test_prediction_endpoint_rejects_malformed_and_unsupported_targets(
                 "error": {
                     "code": "UNSUPPORTED_TARGET",
                     "field": "target_uniprot_id",
-                    "message": "Target is not available for V1 prediction.",
+                    "message": "Target is not available for prediction.",
                 },
             },
         ),
@@ -635,6 +894,64 @@ def test_prediction_endpoint_runs_real_curated_prediction_smoke_path(
         row["classification"]
         for row in predictions
     } <= {"high confidence", "below threshold"}
+
+
+def test_batch_prediction_endpoint_runs_real_curated_prediction_smoke_path(
+    monkeypatch,
+    tmp_path,
+):
+    pytest.importorskip("tensorflow")
+    repo_root = Path(__file__).resolve().parents[3]
+    app_data_dir = tmp_path / "data"
+    app_data_dir.mkdir()
+
+    monkeypatch.setenv(
+        "PROVENTL_MODEL_PATH",
+        str(repo_root / "model/best_model_auc_0.8748.h5"),
+    )
+    monkeypatch.setenv(
+        "PROVENTL_PEPTIDE_EMBEDDINGS_PATH",
+        str(repo_root / "model/data_testing/Pep_Ular_ProtT5.csv"),
+    )
+    monkeypatch.setenv(
+        "PROVENTL_PROTEIN_EMBEDDINGS_PATH",
+        str(repo_root / "model/data_testing/Prot_Cancer_ProtT5.csv"),
+    )
+    monkeypatch.setenv(
+        "PROVENTL_TARGET_METADATA_PATH",
+        str(repo_root / "model/data_testing/data_protein_kanker_uniprot.csv"),
+    )
+    monkeypatch.setenv("PROVENTL_APP_DATA_DIR", str(app_data_dir))
+
+    response = asyncio.run(
+        post_batch_prediction(
+            {"target_uniprot_ids": ["P01133", "P00749"], "threshold": 0.95}
+        )
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["threshold"] == 0.95
+    assert payload["summary"] == {
+        "submitted": 2,
+        "deduped": 0,
+        "succeeded": 2,
+        "rejected": 0,
+    }
+    assert payload["model"]["version"] == "best_model_auc_0.8748"
+    assert len(payload["model"]["hash"]) == 8
+    assert len(payload["data"]["peptide_embeddings_hash"]) == 8
+    assert len(payload["data"]["protein_embeddings_hash"]) == 8
+    assert [result["target"]["uniprot_id"] for result in payload["results"]] == [
+        "P01133",
+        "P00749",
+    ]
+    assert [len(result["predictions"]) for result in payload["results"]] == [145, 145]
+    for result in payload["results"]:
+        scores = [row["classifier_score"] for row in result["predictions"]]
+        assert [row["rank"] for row in result["predictions"]] == list(range(1, 146))
+        assert scores == sorted(scores, reverse=True)
+        assert all(0.0 <= score <= 1.0 for score in scores)
 
 
 class FeatureSumModel:

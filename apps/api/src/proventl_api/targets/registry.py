@@ -112,6 +112,9 @@ def generate_curated_target_registry(
     for row in embedding_rows:
         uniprot_id = _normalize_uniprot_id(row["Uniprot_id"])
         target = {"uniprot_id": uniprot_id}
+        sequence = row.get("prot_seq", "").strip()
+        if sequence:
+            target["sequence"] = sequence
         metadata = metadata_by_id.get(uniprot_id)
         for source_field, target_field in (
             ("gene", "gene"),
@@ -301,7 +304,11 @@ def _target_matches_query(target: dict[str, str], normalized_query: str) -> bool
     )
 
 
-def target_preview(target: dict[str, str]) -> dict[str, str]:
+def target_preview(
+    target: dict[str, str],
+    *,
+    include_sequence: bool = False,
+) -> dict[str, str]:
     preview = {"uniprot_id": target["uniprot_id"]}
     for source_field, response_field in (
         ("gene", "gene"),
@@ -311,6 +318,8 @@ def target_preview(target: dict[str, str]) -> dict[str, str]:
     ):
         if target.get(source_field):
             preview[response_field] = target[source_field]
+    if include_sequence and target.get("sequence"):
+        preview["sequence"] = target["sequence"]
     return preview
 
 

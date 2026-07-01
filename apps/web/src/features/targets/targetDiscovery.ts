@@ -18,7 +18,7 @@ export function selectTarget(
 ): TargetSelectionState {
   return {
     ...state,
-    query: formatSelectedTargetInput(target),
+    query: targetQueryValue(target),
     selectedTarget: target,
   };
 }
@@ -28,7 +28,7 @@ export function updateQueryAndMaybeClearSelection(
   nextQuery: string,
 ): TargetSelectionState & { clearedSelection: boolean } {
   const selectedLabel = state.selectedTarget
-    ? formatSelectedTargetInput(state.selectedTarget)
+    ? targetQueryValue(state.selectedTarget)
     : null;
   const clearedSelection =
     state.selectedTarget !== null && nextQuery !== selectedLabel;
@@ -44,6 +44,12 @@ export function formatSelectedTargetInput(target: TargetPreview): string {
   return target.gene
     ? `${target.gene} · ${target.uniprotId}`
     : target.uniprotId;
+}
+
+// The search form accepts a UniProt accession only, so the committed input
+// value for a selected target is always its accession (never the gene label).
+export function targetQueryValue(target: TargetPreview): string {
+  return target.uniprotId;
 }
 
 export function formatTargetKicker(target: TargetPreview): string {

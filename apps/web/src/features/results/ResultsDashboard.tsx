@@ -49,7 +49,7 @@ export function ResultsDashboard({
     setPage(1);
     setAppliedThreshold(response.threshold);
     setDraftThreshold(thresholdInputValue(response.threshold));
-  }, [response.target.uniprotId, response.threshold]);
+  }, [response.target.uniprotId]);
 
   const interpretedResponse = useMemo(
     () => applyThresholdToPredictionResponse(response, appliedThreshold),

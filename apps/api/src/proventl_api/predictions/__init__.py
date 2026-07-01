@@ -89,7 +89,7 @@ def build_prediction_response_from_probabilities(
     )
 
     return {
-        "target": target_preview(target),
+        "target": target_preview(target, include_sequence=True),
         "threshold": threshold,
         "summary": {
             "total": len(rows),

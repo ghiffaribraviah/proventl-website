@@ -8,6 +8,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+    system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui,
+    sans-serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
 
 * {
@@ -21,7 +26,9 @@ body {
 }
 
 button,
-input {
+input,
+textarea,
+select {
   font: inherit;
 }
 
@@ -40,5 +47,100 @@ button {
 
   .responsive-cell {
     @apply px-5 py-5 max-sm:relative max-sm:flex max-sm:min-h-10 max-sm:items-center max-sm:justify-end max-sm:px-0 max-sm:py-2 max-sm:pl-[45%] max-sm:text-right max-sm:before:absolute max-sm:before:left-0 max-sm:before:text-[0.65rem] max-sm:before:font-extrabold max-sm:before:uppercase max-sm:before:tracking-normal max-sm:before:text-slate-500;
+  }
+
+  .batch-card-title {
+    @apply flex items-center gap-2.5 text-[1.0625rem] font-bold text-ipb-blue before:h-2 before:w-2 before:rounded-full before:bg-ipb-yellow before:content-[''];
+  }
+
+  .batch-input {
+    @apply w-full rounded-[10px] border-[1.5px] border-black/15 bg-white px-3.5 py-2 text-[0.8125rem] font-bold text-fg outline-none transition placeholder:font-normal placeholder:text-muted/80 focus-visible:border-ipb-blue focus-visible:shadow-[0_0_0_4px_rgba(38,60,146,0.08)] focus-visible:bg-white;
+  }
+
+  .batch-input-mono {
+    @apply font-mono;
+  }
+
+  .batch-textarea {
+    @apply block w-full resize-none rounded-[12px] border-[1.5px] border-black/15 bg-white px-4 py-3 font-mono text-[0.875rem] text-fg shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] outline-none transition placeholder:font-normal placeholder:text-muted/80 focus-visible:border-ipb-blue focus-visible:shadow-[0_0_0_4px_rgba(38,60,146,0.08),inset_0_2px_4px_rgba(0,0,0,0.02)];
+  }
+
+  .batch-segment {
+    @apply inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ipb-blue;
+  }
+
+  .batch-tab-btn {
+    @apply relative border-0 bg-transparent px-1 pb-3 pt-2 text-[0.875rem] font-bold text-muted transition;
+  }
+
+  .batch-tab-btn--active {
+    @apply text-ipb-blue;
+  }
+
+  .batch-tab-btn--active::after {
+    content: "";
+    position: absolute;
+    bottom: -1.5px;
+    left: 0;
+    height: 2.5px;
+    width: 100%;
+    border-radius: 2px;
+    background: theme("colors.ipb-blue");
+  }
+
+  .batch-chip {
+    @apply inline-flex items-center gap-1.5 rounded-lg border border-ipb-blue/15 bg-white px-2.5 py-1 font-mono text-[0.8125rem] font-bold text-ipb-blue shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition animate-batch-pop-in hover:border-ipb-blue hover:shadow-[0_2px_6px_rgba(38,60,146,0.06)];
+  }
+
+  .batch-example-tag {
+    @apply inline-flex h-8 shrink-0 items-center rounded-full border border-white/70 bg-white/40 px-3.5 text-[0.8125rem] font-semibold text-muted transition hover:border-ipb-blue hover:bg-white hover:text-ipb-blue;
+  }
+
+  .batch-clear-btn {
+    @apply border-0 bg-transparent text-[0.8125rem] font-bold text-muted underline decoration-2 underline-offset-4 transition hover:text-danger;
+  }
+
+  .batch-cap-warning {
+    @apply mb-3 hidden rounded-lg border border-danger/10 bg-danger/[0.05] p-2 text-[0.8125rem] font-bold text-danger;
+  }
+
+  .batch-cap-warning--visible {
+    @apply block;
+  }
+
+  .batch-apply-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ipb-blue/30 bg-white px-5 py-2.5 text-[0.8125rem] font-bold text-ipb-blue shadow-[0_2px_6px_rgba(38,60,146,0.08)] transition hover:-translate-y-px hover:border-ipb-blue hover:bg-ipb-blue/[0.04] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .batch-apply-btn--pending {
+    @apply border-yellow-500 bg-ipb-yellow text-yellow-950 shadow-[0_4px_12px_rgba(254,216,11,0.4)] hover:bg-ipb-yellow hover:text-yellow-950;
+  }
+
+  .batch-run-btn {
+    @apply inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-ipb-blue px-8 py-4 text-[1.0625rem] font-extrabold text-white shadow-[0_10px_25px_rgba(38,60,146,0.2)] transition hover:-translate-y-0.5 hover:bg-ipb-blue-dark disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none;
+  }
+
+  .batch-rejected-report {
+    @apply border-b border-danger/[0.08] bg-danger/[0.03] px-5 py-5 text-fg sm:px-7;
+  }
+
+  .batch-summary-note {
+    @apply flex flex-col gap-1 border-t border-black/[0.04] bg-ipb-blue/[0.02] px-5 py-4 text-[0.8125rem] sm:flex-row sm:items-center sm:justify-between sm:px-7;
+  }
+
+  .batch-breadcrumb {
+    @apply mb-6 flex items-center gap-2.5 text-[0.875rem] font-bold;
+  }
+
+  .batch-spinner {
+    @apply inline-block h-12 w-12 animate-batch-spin rounded-full border-4 border-ipb-blue/15 border-t-ipb-blue;
+  }
+
+  .batch-info-list {
+    @apply divide-y divide-black/[0.03];
+  }
+
+  .batch-info-item {
+    @apply px-5 py-5 sm:px-7 sm:py-6;
   }
 }

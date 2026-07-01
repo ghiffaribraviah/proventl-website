@@ -1,7 +1,8 @@
-export type AppRoute = "citation" | "docs" | "home" | "methodology";
+export type AppRoute = "batch" | "citation" | "docs" | "home" | "methodology";
 
 export const APP_NAVIGATION: Array<{ label: string; route: AppRoute }> = [
   { label: "Home", route: "home" },
+  { label: "Batch", route: "batch" },
   { label: "Docs", route: "docs" },
   { label: "Methodology", route: "methodology" },
   { label: "Citation", route: "citation" },
@@ -9,6 +10,8 @@ export const APP_NAVIGATION: Array<{ label: string; route: AppRoute }> = [
 
 export function pathForRoute(route: AppRoute): string {
   switch (route) {
+    case "batch":
+      return "/batch";
     case "docs":
       return "/docs";
     case "methodology":
@@ -22,6 +25,8 @@ export function pathForRoute(route: AppRoute): string {
 
 export function routeFromPath(pathname: string): AppRoute {
   switch (pathname.replace(/\/+$/, "") || "/") {
+    case "/batch":
+      return "batch";
     case "/docs":
       return "docs";
     case "/docs/methodology":

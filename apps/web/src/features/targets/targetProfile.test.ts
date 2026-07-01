@@ -23,9 +23,9 @@ describe("target profile model", () => {
       "Protein Name",
       "Organism",
       "Protein Family",
-      "Sequence Length",
+      "Functions",
       "Molecular Weight",
-      "Function Summary",
+      "Sequence Length",
     ]);
     expect(uniprotEntryUrl(target)).toBe(
       "https://www.uniprot.org/uniprotkb/P01133/entry",

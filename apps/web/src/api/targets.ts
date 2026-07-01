@@ -5,6 +5,7 @@ export type TargetPreview = {
   organism?: string;
   proteinFamily?: string;
   proteinName?: string;
+  sequence?: string;
   sequenceLength?: string;
   uniprotId: string;
 };
@@ -16,6 +17,7 @@ type BackendTargetPreview = {
   organism?: string;
   protein_family?: string;
   protein_name?: string;
+  sequence?: string;
   sequence_length?: string | number;
   uniprot_id: string;
 };
@@ -126,6 +128,7 @@ export function normalizeTargetPreview(
     organism: cleanOptional(target.organism),
     proteinFamily: cleanOptional(target.protein_family),
     proteinName: cleanOptional(target.protein_name),
+    sequence: cleanOptional(target.sequence),
     sequenceLength:
       target.sequence_length === undefined
         ? undefined

@@ -39,6 +39,20 @@ async def post_prediction_twice() -> tuple[httpx.Response, httpx.Response]:
     return first_response, second_response
 
 
+async def post_batch_prediction_twice() -> tuple[httpx.Response, httpx.Response]:
+    transport = httpx.ASGITransport(
+        app=create_app(model_loader=lambda path: FeatureSumModel())
+    )
+    payload = {"target_uniprot_ids": ["P01133"], "threshold": 0.50}
+    async with httpx.AsyncClient(
+        transport=transport,
+        base_url="http://testserver",
+    ) as client:
+        first_response = await client.post("/api/predictions/batch", json=payload)
+        second_response = await client.post("/api/predictions/batch", json=payload)
+    return first_response, second_response
+
+
 def configure_artifacts(monkeypatch, tmp_path) -> None:
     model_path = tmp_path / "model.h5"
     peptide_embeddings_path = tmp_path / "peptides.csv"
@@ -171,4 +185,23 @@ def test_prediction_requests_have_a_separate_configurable_limit(monkeypatch, tmp
         "code": "RATE_LIMITED",
         "route": "prediction",
         "message": "Too many prediction requests. Please try again shortly.",
+    }
+
+
+def test_batch_prediction_requests_have_a_separate_configurable_limit(
+    monkeypatch,
+    tmp_path,
+):
+    configure_artifacts(monkeypatch, tmp_path)
+    monkeypatch.setenv("PROVENTL_RATE_LIMIT_PREDICTION_BATCH_REQUESTS", "1")
+    monkeypatch.setenv("PROVENTL_RATE_LIMIT_WINDOW_SECONDS", "60")
+
+    first_response, second_response = asyncio.run(post_batch_prediction_twice())
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 429
+    assert second_response.json()["error"] == {
+        "code": "RATE_LIMITED",
+        "route": "prediction-batch",
+        "message": "Too many batch prediction requests. Please try again shortly.",
     }

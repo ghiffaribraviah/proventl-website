@@ -29,16 +29,16 @@ describe("target discovery model", () => {
     expect(TARGET_SEARCH_DEBOUNCE_MS).toBe(250);
   });
 
-  it("selects a target without creating prediction state", () => {
+  it("selects a target and commits the accession as the input value", () => {
     const selected = selectTarget({ query: "eg", selectedTarget: null }, egfr);
 
-    expect(selected.query).toBe("EGFR · P01133");
+    expect(selected.query).toBe("P01133");
     expect(selected.selectedTarget).toEqual(egfr);
   });
 
   it("clears selection when a selected input is edited", () => {
     const nextState = updateQueryAndMaybeClearSelection(
-      { query: "EGFR · P01133", selectedTarget: egfr },
+      { query: "P01133", selectedTarget: egfr },
       "EGF",
     );
 

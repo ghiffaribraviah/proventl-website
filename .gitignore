@@ -16,4 +16,5 @@ data/
 .scratch/
 docs/
 .agents/
+.claude/
 AGENTS.md

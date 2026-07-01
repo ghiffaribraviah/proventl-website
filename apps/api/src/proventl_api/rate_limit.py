@@ -11,18 +11,21 @@ DEFAULT_LIMITS = {
     "target-search": 120,
     "target-lookup": 30,
     "prediction": 20,
+    "prediction-batch": 5,
 }
 
 LIMIT_SETTINGS = {
     "target-search": "PROVENTL_RATE_LIMIT_SEARCH_REQUESTS",
     "target-lookup": "PROVENTL_RATE_LIMIT_LOOKUP_REQUESTS",
     "prediction": "PROVENTL_RATE_LIMIT_PREDICTION_REQUESTS",
+    "prediction-batch": "PROVENTL_RATE_LIMIT_PREDICTION_BATCH_REQUESTS",
 }
 
 RATE_LIMIT_MESSAGES = {
     "target-search": "Too many target search requests. Please try again shortly.",
     "target-lookup": "Too many target lookup requests. Please try again shortly.",
     "prediction": "Too many prediction requests. Please try again shortly.",
+    "prediction-batch": "Too many batch prediction requests. Please try again shortly.",
 }
 
 
@@ -53,6 +56,8 @@ def rate_limit_route(request: Request) -> str | None:
         return "target-search"
     if request.method == "GET" and request.url.path == "/api/targets/lookup":
         return "target-lookup"
+    if request.method == "POST" and request.url.path == "/api/predictions/batch":
+        return "prediction-batch"
     if request.method == "POST" and request.url.path == "/api/predictions":
         return "prediction"
     return None

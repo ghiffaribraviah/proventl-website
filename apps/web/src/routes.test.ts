@@ -10,9 +10,15 @@ describe("app documentation routes", () => {
     expect(routeFromPath("/docs/methodology")).toBe("methodology");
   });
 
-  it("navigation reaches docs routes without API docs", () => {
+  it("maps the V2 batch route", () => {
+    expect(pathForRoute("batch")).toBe("/batch");
+    expect(routeFromPath("/batch")).toBe("batch");
+  });
+
+  it("navigation reaches docs routes and the batch route without API docs", () => {
     expect(APP_NAVIGATION.map((item) => pathForRoute(item.route))).toEqual([
       "/",
+      "/batch",
       "/docs",
       "/docs/methodology",
       "/docs/citation",

@@ -1,4 +1,9 @@
 .git
+.agents
+.claude
+.codex
+.od-skills
+.playwright-data
 .pytest_cache
 .uv-cache
 .venv

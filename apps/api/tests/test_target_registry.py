@@ -47,6 +47,8 @@ def test_registry_generation_uses_embedding_ids_as_curated_targets(
         "P01133",
         "P00749",
     ]
+    assert registry.targets[0]["sequence"] == "SEQUENCE"
+    assert registry.targets[1]["sequence"] == "SEQUENCE"
     assert registry.targets[0]["protein_families"] == "Receptor tyrosine kinase"
     assert "protein_families" not in registry.targets[1]
 

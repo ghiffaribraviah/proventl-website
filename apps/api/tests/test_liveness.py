@@ -195,9 +195,10 @@ def test_readiness_reports_registry_metadata_without_full_hashes(
             "organism": "Homo sapiens",
             "protein_families": "Receptor tyrosine kinase",
             "protein_name": "Epidermal growth factor receptor",
+            "sequence": "SEQUENCE",
             "uniprot_id": "P01133",
         },
-        {"uniprot_id": "P00749"},
+        {"sequence": "SEQUENCE", "uniprot_id": "P00749"},
     ]
     expected_hash = hashlib.sha256(
         json.dumps(registry_targets, sort_keys=True, separators=(",", ":")).encode(
